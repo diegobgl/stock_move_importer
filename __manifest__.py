@@ -8,5 +8,7 @@
     'description': 'Import stock picking records from Excel.',
     'data': [
         'wizards/stock_import_wizard_view.xml',
+        'wizards/stock_import_wizard_view.xml',
+
     ],
 }
