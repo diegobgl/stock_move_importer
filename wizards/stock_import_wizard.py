@@ -18,6 +18,12 @@ class StockImportWizard(models.TransientModel):
         book = xlrd.open_workbook(file_contents=file_data)
         sheet = book.sheet_by_index(0)
 
+        priority_map = {
+            'Low': '0',
+            'Normal': '1',
+            'High': '2'
+        }
+
         for rowx in range(3, sheet.nrows):  # Comienza desde la fila 4
             row = sheet.row(rowx)
             
@@ -28,7 +34,7 @@ class StockImportWizard(models.TransientModel):
                 'location_dest_id': self._get_location_id(row[12].value),
                 'picking_type_id': self._get_picking_type_id(row[11].value),
                 'origin': row[5].value,
-                'priority': row[9].value,
+                'priority': priority_map.get(row[9].value, '1'),  # Convertir prioridad
             }
             picking = self.env['stock.picking'].create(picking_data)
 
