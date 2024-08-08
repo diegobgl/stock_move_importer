@@ -55,7 +55,11 @@ class StockImportWizard(models.TransientModel):
                 'location_dest_id': self._get_location_id(row[1].value),
                 'name': row[3].value,
             }
-            self.env['stock.move'].create(move_data)
+            move = self.env['stock.move'].create(move_data)
+
+            # Confirmar y validar el picking
+            picking.action_confirm()
+            picking.button_validate()
 
     def _get_location_id(self, name):
         location = self.env['stock.location'].search([('name', '=', name)], limit=1)
