@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_stock_import_wizard" model="ir.ui.view">
+        <field name="name">stock.import.wizard.form</field>
+        <field name="model">stock.import.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Import Stock Picking">
+                <group>
+                    <field name="file"/>
+                    <field name="filename"/>
+                </group>
+                <footer>
+                    <button name="import_file" string="Import" type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <menuitem id="menu_stock_import_wizard" name="Import Stock Picking" parent="stock.menu_stock_root" action="action_stock_import_wizard"/>
+
+    <record id="action_stock_import_wizard" model="ir.actions.act_window">
+        <field name="name">Import Stock Picking</field>
+        <field name="res_model">stock.import.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>
