@@ -21,12 +21,15 @@ class StockImportWizard(models.TransientModel):
         for rowx in range(1, sheet.nrows):  # Comienza desde la fila 2
             row = sheet.row(rowx)
             
+            picking_type_id = self._get_picking_type_id('internal')  # Obtener el picking_type_id adecuado, aquí se asume 'internal'
+
             picking_data = {
                 'location_id': self._get_location_id(row[0].value),
                 'location_dest_id': self._get_location_id(row[1].value),
                 'scheduled_date': row[2].value,
                 'origin': row[10].value,
                 'priority': '1',  # Asumiendo prioridad normal si no hay campo en el Excel
+                'picking_type_id': picking_type_id,
             }
             picking = self.env['stock.picking'].create(picking_data)
             
@@ -59,3 +62,9 @@ class StockImportWizard(models.TransientModel):
         if not uom:
             uom = self.env['uom.uom'].create({'name': name})
         return uom.id
+
+    def _get_picking_type_id(self, code):
+        picking_type = self.env['stock.picking.type'].search([('code', '=', code)], limit=1)
+        if not picking_type:
+            picking_type = self.env['stock.picking.type'].create({'code': code, 'name': code})
+        return picking_type.id
