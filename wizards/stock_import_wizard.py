@@ -2,6 +2,7 @@ import base64
 import xlrd
 from odoo import models, fields, api
 from odoo.exceptions import UserError
+from datetime import datetime
 
 class StockImportWizard(models.TransientModel):
     _name = 'stock.import.wizard'
@@ -21,12 +22,19 @@ class StockImportWizard(models.TransientModel):
         for rowx in range(1, sheet.nrows):  # Comienza desde la fila 2
             row = sheet.row(rowx)
             
+            # Convertir la fecha a cadena en el formato esperado
+            if isinstance(row[2].value, float):
+                date_value = xlrd.xldate_as_datetime(row[2].value, book.datemode)
+                scheduled_date = date_value.strftime('%Y-%m-%d %H:%M:%S')
+            else:
+                scheduled_date = row[2].value
+
             picking_type_id = self._get_picking_type_id('internal')  # Obtener el picking_type_id adecuado, aquí se asume 'internal'
 
             picking_data = {
                 'location_id': self._get_location_id(row[0].value),
                 'location_dest_id': self._get_location_id(row[1].value),
-                'scheduled_date': row[2].value,
+                'scheduled_date': scheduled_date,
                 'origin': row[10].value,
                 'priority': '1',  # Asumiendo prioridad normal si no hay campo en el Excel
                 'picking_type_id': picking_type_id,
