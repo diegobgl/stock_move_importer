@@ -31,6 +31,9 @@ class StockImportWizard(models.TransientModel):
 
             picking_type_id = self._get_picking_type_id('internal')  # Obtener el picking_type_id adecuado, aquí se asume 'internal'
 
+            product_id = self._get_product_id(row[3].value)
+            product = self.env['product.product'].browse(product_id)
+
             picking_data = {
                 'location_id': self._get_location_id(row[0].value),
                 'location_dest_id': self._get_location_id(row[1].value),
@@ -42,9 +45,9 @@ class StockImportWizard(models.TransientModel):
             picking = self.env['stock.picking'].create(picking_data)
             
             move_data = {
-                'product_id': self._get_product_id(row[3].value),
+                'product_id': product.id,
                 'product_uom_qty': float(row[13].value),
-                'product_uom': self._get_uom_id(row[4].value),
+                'product_uom': product.uom_id.id,  # Usar la unidad de medida del producto
                 'picking_id': picking.id,
                 'location_id': self._get_location_id(row[0].value),
                 'location_dest_id': self._get_location_id(row[1].value),
