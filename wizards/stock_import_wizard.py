@@ -33,6 +33,7 @@ class StockImportWizard(models.TransientModel):
 
             product_id = self._get_product_id(row[3].value)
             product = self.env['product.product'].browse(product_id)
+            analytic_account_id = self._get_analytic_account_id(row[9].value)
 
             picking_data = {
                 'location_id': self._get_location_id(row[0].value),
@@ -41,6 +42,7 @@ class StockImportWizard(models.TransientModel):
                 'origin': row[10].value,
                 'priority': '1',  # Asumiendo prioridad normal si no hay campo en el Excel
                 'picking_type_id': picking_type_id,
+                'analytic_account_id': analytic_account_id,  # Asignar el valor del campo Analytic Account
             }
             picking = self.env['stock.picking'].create(picking_data)
             
@@ -79,3 +81,9 @@ class StockImportWizard(models.TransientModel):
         if not picking_type:
             picking_type = self.env['stock.picking.type'].create({'code': code, 'name': code})
         return picking_type.id
+
+    def _get_analytic_account_id(self, name):
+        analytic_account = self.env['account.analytic.account'].search([('name', '=', name)], limit=1)
+        if not analytic_account:
+            analytic_account = self.env['account.analytic.account'].create({'name': name})
+        return analytic_account.id
