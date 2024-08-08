@@ -24,36 +24,25 @@ class StockImportWizard(models.TransientModel):
             'High': '2'
         }
 
-        for rowx in range(3, sheet.nrows):  # Comienza desde la fila 4
+        for rowx in range(1, sheet.nrows):  # Comienza desde la fila 2
             row = sheet.row(rowx)
             
             picking_data = {
-                'partner_id': self._get_partner_id(row[2].value),
-                'scheduled_date': row[8].value,
-                'location_id': self._get_location_id(row[13].value),
-                'location_dest_id': self._get_location_id(row[12].value),
-                'picking_type_id': self._get_picking_type_id(row[11].value),
-                'origin': row[5].value,
-                'priority': priority_map.get(row[9].value, '1'),  # Convertir prioridad
+                'location_id': self._get_location_id(row[0].value),
+                'location_dest_id': self._get_location_id(row[1].value),
+                'scheduled_date': row[2].value,
+                'origin': row[10].value,
+                'priority': '1',  # Asumiendo prioridad normal si no hay campo en el Excel
+                'move_lines': [(0, 0, {
+                    'product_id': self._get_product_id(row[3].value),
+                    'product_uom_qty': float(row[13].value),
+                    'product_uom': self._get_uom_id(row[4].value),
+                    'location_id': self._get_location_id(row[0].value),
+                    'location_dest_id': self._get_location_id(row[1].value),
+                    'name': row[3].value,
+                })]
             }
-            picking = self.env['stock.picking'].create(picking_data)
-
-            move_data = {
-                'product_id': self._get_product_id(row[11].value),
-                'product_uom_qty': float(row[14].value),
-                'product_uom': self._get_uom_id(row[11].value),
-                'picking_id': picking.id,
-                'location_id': self._get_location_id(row[13].value),
-                'location_dest_id': self._get_location_id(row[12].value),
-                'name': row[10].value,
-            }
-            self.env['stock.move'].create(move_data)
-
-    def _get_partner_id(self, name):
-        partner = self.env['res.partner'].search([('name', '=', name)], limit=1)
-        if not partner:
-            partner = self.env['res.partner'].create({'name': name})
-        return partner.id
+            self.env['stock.picking'].create(picking_data)
 
     def _get_location_id(self, name):
         location = self.env['stock.location'].search([('name', '=', name)], limit=1)
@@ -61,14 +50,8 @@ class StockImportWizard(models.TransientModel):
             location = self.env['stock.location'].create({'name': name})
         return location.id
 
-    def _get_picking_type_id(self, code):
-        picking_type = self.env['stock.picking.type'].search([('code', '=', code)], limit=1)
-        if not picking_type:
-            picking_type = self.env['stock.picking.type'].create({'code': code, 'name': code})
-        return picking_type.id
-
     def _get_product_id(self, name):
-        product = self.env['product.product'].search([('name', '=', name)], limit=1)
+        product = self.env['product.product'].search([('default_code', '=', name.split('] ')[1].split(' ')[0])], limit=1)
         if not product:
             product = self.env['product.product'].create({'name': name})
         return product.id
