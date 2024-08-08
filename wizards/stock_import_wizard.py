@@ -82,14 +82,14 @@ class StockImportWizard(models.TransientModel):
             picking_type = self.env['stock.picking.type'].create({'code': code, 'name': code})
         return picking_type.id
 
-    def _get_analytic_account_ids(self, names):
-        # Asegurarse de que 'names' sea una cadena y eliminar decimales y puntos
-        if isinstance(names, float):
-            names = str(int(names))  # Convertir float a int y luego a cadena
-        elif isinstance(names, str):
-            names = names.split('.')[0]  # Eliminar la parte decimal si la hay
-        account_names = names.split(',')
-        analytic_accounts = self.env['account.analytic.account'].search([('name', 'in', account_names)])
+    def _get_analytic_account_ids(self, ids):
+        # Asegurarse de que 'ids' sea una cadena y eliminar decimales y puntos
+        if isinstance(ids, float):
+            ids = str(int(ids))  # Convertir float a int y luego a cadena
+        elif isinstance(ids, str):
+            ids = ids.split('.')[0]  # Eliminar la parte decimal si la hay
+        account_ids = [int(id.strip()) for id in ids.split(',')]
+        analytic_accounts = self.env['account.analytic.account'].search([('id', 'in', account_ids)])
         if not analytic_accounts:
-            raise UserError(f"No se encontraron las cuentas analíticas: {names}")
+            raise UserError(f"No se encontraron las cuentas analíticas con IDs: {ids}")
         return analytic_accounts.ids
