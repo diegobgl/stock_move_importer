@@ -7,7 +7,7 @@
     'category': 'Warehouse',
     'description': 'Import stock picking records from Excel.',
     'data': [
-        'wizards/stock_import_wizard_view.xml',
+        'security/ir.model.access.csv',
         'wizards/stock_import_wizard_view.xml',
 
     ],
