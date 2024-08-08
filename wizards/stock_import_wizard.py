@@ -83,6 +83,9 @@ class StockImportWizard(models.TransientModel):
         return picking_type.id
 
     def _get_analytic_account_ids(self, names):
+        # Asegurarse de que 'names' sea una cadena
+        if not isinstance(names, str):
+            names = str(names)
         account_names = names.split(',')
         analytic_accounts = self.env['account.analytic.account'].search([('name', 'in', account_names)])
         if not analytic_accounts:
