@@ -33,7 +33,7 @@ class StockImportWizard(models.TransientModel):
 
             product_id = self._get_product_id(row[3].value)
             product = self.env['product.product'].browse(product_id)
-            analytic_account_id = self._get_analytic_account_id(row[9].value)
+            analytic_account_ids = self._get_analytic_account_ids(row[9].value)
 
             picking_data = {
                 'location_id': self._get_location_id(row[0].value),
@@ -42,7 +42,7 @@ class StockImportWizard(models.TransientModel):
                 'origin': row[10].value,
                 'priority': '1',  # Asumiendo prioridad normal si no hay campo en el Excel
                 'picking_type_id': picking_type_id,
-                'analytic_account_id': analytic_account_id,  # Asignar el valor del campo Analytic Account
+                'analytic_account_ids': [(6, 0, analytic_account_ids)],  # Asignar los IDs del campo Analytic Account
             }
             picking = self.env['stock.picking'].create(picking_data)
             
@@ -82,8 +82,9 @@ class StockImportWizard(models.TransientModel):
             picking_type = self.env['stock.picking.type'].create({'code': code, 'name': code})
         return picking_type.id
 
-    def _get_analytic_account_id(self, name):
-        analytic_account = self.env['account.analytic.account'].search([('name', '=', name)], limit=1)
-        if not analytic_account:
-            analytic_account = self.env['account.analytic.account'].create({'name': name})
-        return analytic_account.id
+    def _get_analytic_account_ids(self, names):
+        account_names = names.split(',')
+        analytic_accounts = self.env['account.analytic.account'].search([('name', 'in', account_names)])
+        if not analytic_accounts:
+            raise UserError(f"No se encontraron las cuentas analíticas: {names}")
+        return analytic_accounts.ids
