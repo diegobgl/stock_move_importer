@@ -9,27 +9,27 @@ class StockPickingImport(models.TransientModel):
 
 
 
-class StockPicking(models.Model):
-    _inherit = 'stock.picking'
+# class StockPicking(models.Model):
+#     _inherit = 'stock.picking'
 
-    def button_validate(self):
-        res = super(StockPicking, self).button_validate()
-        self.ensure_account_moves()
-        return res
+#     def button_validate(self):
+#         res = super(StockPicking, self).button_validate()
+#         self.ensure_account_moves()
+#         return res
 
-    def ensure_account_moves(self):
-        # Ajusta 'move_lines' si tiene un nombre diferente en tu modelo
-        move_lines_field = 'move_lines'  # Cambia esto si es necesario
+#     def ensure_account_moves(self):
+#         # Ajusta 'move_lines' si tiene un nombre diferente en tu modelo
+#         move_lines_field = 'move_lines'  # Cambia esto si es necesario
 
-        if not hasattr(self, move_lines_field):
-            raise UserError(f"El modelo stock.picking no tiene el campo '{move_lines_field}'. Verifica el nombre del campo.")
+#         if not hasattr(self, move_lines_field):
+#             raise UserError(f"El modelo stock.picking no tiene el campo '{move_lines_field}'. Verifica el nombre del campo.")
 
-        for picking in self:
-            moves = getattr(picking, move_lines_field).filtered(lambda m: m.state == 'done')
-            if moves:
-                self.create_account_move(moves)
+#         for picking in self:
+#             moves = getattr(picking, move_lines_field).filtered(lambda m: m.state == 'done')
+#             if moves:
+#                 self.create_account_move(moves)
 
-    def create_account_move(self, moves):
-        for move in moves:
-            if not move.account_move_ids:
-                move._create_account_move_line()
+#     def create_account_move(self, moves):
+#         for move in moves:
+#             if not move.account_move_ids:
+#                 move._create_account_move_line()
